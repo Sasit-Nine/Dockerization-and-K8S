@@ -1,0 +1,68 @@
+services:
+  db:
+    image: mysql:8.0
+    container_name: MySQL_DB
+    environment:
+      MYSQL_DATABASE: LaravelDB
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: password
+    ports:
+      - "3306:3306"
+    volumes:
+      - db-data:/var/lib/mysql
+
+  redis:
+    image: redis:alpine
+    container_name: Redis_DB
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+
+  app:
+    image: sasit48/laravel-fibonacci
+    container_name: Laravel_APP
+    ports:
+      - "8000:8000"
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_HOST: db
+      DB_DATABASE: LaravelDB
+      DB_USERNAME: admin
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+      GOOGLE_CLIENT_ID: 243354383277-9l44h78o96hil5sbj1q0mhvmpaj3tj2k.apps.googleusercontent.com
+      GOOGLE_CLIENT_SECRET: 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
+      GOOGLE_REDIRECT_URI: http://localhost:8000/auth/google/callback
+    command: php artisan serve --host=0.0.0.0 --port=8000
+
+  worker:
+    image: sasit48/laravel-fibonacci
+    container_name: Laravel_Worker
+    volumes:
+      - .:/var/www/html
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_HOST: db
+      DB_DATABASE: LaravelDB
+      DB_USERNAME: admin
+      DB_PASSWORD: password
+      REDIS_HOST: redis
+    command: php artisan queue:work --daemon
+
+  frontend:
+    image: sasit48/react-fibonacci
+    container_name: React_Frontend
+    ports:
+      - "5174:80"
+
+volumes:
+  db-data:
+  redis-data:
