@@ -21,40 +21,22 @@ services:
       - redis-data:/data
 
   app:
-    image: sasit48/laravel-fibonacci
+    image: backend-fibonacci-calculator
     container_name: Laravel_APP
     ports:
       - "8000:8000"
-    volumes:
-      - .:/var/www/html
     depends_on:
       - db
       - redis
-    environment:
-      DB_HOST: db
-      DB_DATABASE: LaravelDB
-      DB_USERNAME: admin
-      DB_PASSWORD: password
-      REDIS_HOST: redis
-      GOOGLE_CLIENT_ID: 243354383277-9l44h78o96hil5sbj1q0mhvmpaj3tj2k.apps.googleusercontent.com
-      GOOGLE_CLIENT_SECRET: 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
-      GOOGLE_REDIRECT_URI: http://localhost:8000/auth/google/callback
-    command: php artisan serve --host=0.0.0.0 --port=8000
+    command: >
+      sh -c "php artisan serve --host=0.0.0.0 --port=8000 && php artisan migrate"
 
   worker:
-    image: sasit48/laravel-fibonacci
+    image: backend-fibonacci-calculator
     container_name: Laravel_Worker
-    volumes:
-      - .:/var/www/html
     depends_on:
       - db
       - redis
-    environment:
-      DB_HOST: db
-      DB_DATABASE: LaravelDB
-      DB_USERNAME: admin
-      DB_PASSWORD: password
-      REDIS_HOST: redis
     command: php artisan queue:work --daemon
 
   frontend:
