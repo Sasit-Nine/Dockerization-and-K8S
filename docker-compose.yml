@@ -21,7 +21,7 @@ services:
       - redis-data:/data
 
   app:
-    image: backend-fibonacci-calculator
+    image: sasit48/laravel-fibonacci-calculator
     container_name: Laravel_APP
     ports:
       - "8000:8000"
@@ -29,10 +29,10 @@ services:
       - db
       - redis
     command: >
-      sh -c "php artisan serve --host=0.0.0.0 --port=8000 && php artisan migrate"
+      sh -c "php artisan migrate && php artisan serve --host=0.0.0.0 --port=8000"
 
   worker:
-    image: backend-fibonacci-calculator
+    image: sasit48/laravel-fibonacci-calculator
     container_name: Laravel_Worker
     depends_on:
       - db
