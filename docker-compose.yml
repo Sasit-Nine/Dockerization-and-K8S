@@ -20,6 +20,14 @@ services:
     volumes:
       - redis-data:/data
 
+  worker:
+    image: sasit48/laravel-fibonacci-calculator
+    container_name: Laravel_Worker
+    depends_on:
+      - db
+      - redis
+    command: php artisan queue:work --daemon
+
   app:
     image: sasit48/laravel-fibonacci-calculator
     container_name: Laravel_APP
@@ -28,16 +36,9 @@ services:
     depends_on:
       - db
       - redis
+      - worker
     command: >
-      sh -c "php artisan migrate && php artisan serve --host=0.0.0.0 --port=8000"
-
-  worker:
-    image: sasit48/laravel-fibonacci-calculator
-    container_name: Laravel_Worker
-    depends_on:
-      - db
-      - redis
-    command: php artisan queue:work --daemon
+      sh -c "sleep 15 && php artisan migrate && php artisan serve --host=0.0.0.0 --port=8000"
 
   frontend:
     image: sasit48/react-fibonacci
